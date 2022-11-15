@@ -4,7 +4,7 @@
 // @description        Beautify the Teambition.
 // @description:zh-CN  美化Teambition。
 // @namespace          https://github.com/HaleShaw
-// @version            1.0.0
+// @version            1.0.1
 // @author             HaleShaw
 // @copyright          2022+, HaleShaw (https://github.com/HaleShaw)
 // @license            AGPL-3.0-or-later
@@ -110,12 +110,12 @@
 
     /* 表头第一列 */
     ._1a3bcSp1CtO4ejX9ugVzzO._2Q3J8umLBh0SslZCOuVtuw {
-      width: 180px;
+      width: 180px !important;
     }
 
     /* 表体第一列 */
     ._1a3bcSp1CtO4ejX9ugVzzO {
-      padding: 0 0px 0 28px;
+      padding: 0 0px 0 28px !important;
     }
 
     .rt-table > .rt-tbody > .rt-tr-group > .rt-tr > .rt-td:first-child,
@@ -152,7 +152,7 @@
 
     /* footer总计工时 */
     .Z8fZCPB9x3aQBvMMYEzWI {
-      padding: 0px 0px;
+      padding: 0px 0px !important;
     }
 
     button.cusBtn {
@@ -185,6 +185,16 @@
       padding: 0px 8px;
       margin-left: 10px;
       height: 30px;
+    }
+
+    /* 计划时间过大 */
+    span.time.plan.greater {
+      color: #ff2222;
+    }
+
+    /* 计划时间过小 */
+    span.time.plan.less {
+      color: #f29900;
     }
     `;
 
@@ -399,6 +409,9 @@ span.errMsg {
 
   let members = [];
 
+  const planTimeMaximum = 10;
+  const planTimeMinimum = 7;
+
   main();
 
   function main() {
@@ -408,19 +421,36 @@ span.errMsg {
     GM_registerMenuCommand("设置", () => {
       new Setting();
     });
-    setTimeout(() => {
-      if (window.location.href.startsWith('https://apps.teambition.com/work-time-client')) {
-        GM_addStyle(worktimeStyle);
-        loadAllWorktime();
-        choosePlanTime();
-        addFilterButton();
-      } else {
+
+    if (window.location.href.startsWith('https://apps.teambition.com/work-time-client')) {
+      beautifyWorktime();
+    } else {
+      setTimeout(() => {
         hideAddingStatus();
         listenDom();
         loadAll();
         addSideButton();
+      }, 4000);
+    }
+  }
+
+  function beautifyWorktime() {
+    GM_addStyle(worktimeStyle);
+
+    let timeout = 0;
+    let table;
+    let interval = setInterval(() => {
+      timeout += 1;
+      table = document.querySelector('.ReactTable > .rt-table');
+
+      // Stop the circulator when the element is found or after 10 seconds(100*100 ms).
+      if (timeout == 100 || table) {
+        clearInterval(interval);
+        loadAllWorktime();
+        choosePlanTime();
+        addFilterButton();
       }
-    }, 4000);
+    }, 100);
   }
 
   /**
@@ -606,11 +636,15 @@ span.errMsg {
     }
     setTimeout(() => {
       table.scroll(0, 0);
+    }, loadCount * 1000);
+
+    setTimeout(() => {
       removeWorktime();
       cleanWord();
       AppendMemberNumber();
       addMemberSelect();
-    }, loadCount * 1000);
+      markAbnormalTime();
+    }, (loadCount + 1) * 1000);
   }
 
   /**
@@ -634,6 +668,10 @@ span.errMsg {
         values[i].innerText = text.replace(' 小时', '');
       }
     }
+
+    document.querySelectorAll('span._3sRT72VQQvRBhWYMmH0hD2').forEach((item) => {
+      item.remove();
+    });
   }
 
   /**
@@ -807,6 +845,28 @@ span.errMsg {
     parent.append(select);
   }
 
+  /**
+   * Color the abnormal times.
+   */
+  function markAbnormalTime() {
+    let spanList = document.querySelectorAll('.rt-tbody .rt-tr .rt-td:not(:first-child) span.JqBbgp5bIj-_fWcuSdn8X');
+    for (let i = 0; i < spanList.length; i++) {
+      let timeArr = spanList[i].textContent.split('/');
+      const actualTime = new Number(timeArr[0].trim()).toFixed(0);
+      const planTime = new Number(timeArr[1].trim()).toFixed(0);
+      let innerHTML;
+      if (planTime >= planTimeMaximum) {
+        innerHTML = `<span>${actualTime}</span><span>&nbsp;/&nbsp;</span><span class="time plan greater">${planTime}</span>`;
+      }
+      else if (planTime <= planTimeMinimum) {
+        innerHTML = `<span>${actualTime}</span><span>&nbsp;/&nbsp;</span><span class="time plan less">${planTime}</span>`;
+      }
+      else {
+        innerHTML = `<span>${actualTime}</span><span>&nbsp;/&nbsp;</span><span class="time plan">${planTime}</span>`;
+      }
+      spanList[i].innerHTML = innerHTML;
+    }
+  }
   class Setting {
     constructor() {
       this.init()

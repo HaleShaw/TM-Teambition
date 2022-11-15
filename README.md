@@ -57,6 +57,8 @@ Tampermonkey-Beautify the Teambition.
     ['username','username'];
     ```
 
+6. 以不同颜色标记异常的计划工时
+
     ![工时应用](https://github.com/HaleShaw/TM-Teambition/raw/main/screenshots/2.Worktime.png)
 
 ### 二、项目
