@@ -4,7 +4,7 @@
 // @description        Beautify the Teambition.
 // @description:zh-CN  美化Teambition。
 // @namespace          https://github.com/HaleShaw
-// @version            1.0.1
+// @version            1.0.2
 // @author             HaleShaw
 // @copyright          2022+, HaleShaw (https://github.com/HaleShaw)
 // @license            AGPL-3.0-or-later
@@ -72,6 +72,21 @@
       padding: 0 !important;
       width: 110px !important;
   }
+  /* -------------------------------------------------------------------------- */
+  /* 迭代面板 */
+  .sprint-panel-component-title-wrapper {
+      padding: 4px 16px !important;
+  }
+  .sprint-panel-component-sprint-content>.sprint-name {
+      padding: 3px 0 !important;
+  }
+  .sprint-panel-item .sprint-control-option {
+      height: 28px !important;
+  }
+
+  .sprint-panel-item .sprint-subtitle {
+      margin-bottom: 0px !important;
+  }
   `;
 
   const loadAllStyle = `
@@ -99,6 +114,18 @@
   `;
 
   const worktimeStyle = `
+    /* 头部标题 */
+    #root header h4 {
+        display: none !important;
+    }
+    /* 头部日期选择器 */
+    ._18ivZlWaPJH2YVLnpZrb0N>header .LZNYW1Yb6acagP8pDYBcB .vkkNP00hyMhbgKHQS-CCT {
+        margin-right: 8px !important;
+    }
+    ._18ivZlWaPJH2YVLnpZrb0N>header .LZNYW1Yb6acagP8pDYBcB ._2gIxRD0Aw3Wz4V58lFor-k {
+        margin-left: 8px !important;
+    }
+
     #root > div > div > header > div:first-child > h4 {
       padding: 0 5px !important;
     }
@@ -412,6 +439,9 @@ span.errMsg {
   const planTimeMaximum = 10;
   const planTimeMinimum = 7;
 
+  // The number of times the worktime page was loaded.
+  const loadCount = 5;
+
   main();
 
   function main() {
@@ -626,7 +656,6 @@ span.errMsg {
    */
   function loadAllWorktime() {
     let table = document.querySelector('.ReactTable > .rt-table');
-    const loadCount = 4;
     for (var i = 0; i < loadCount; i++) {
       (function (t) {
         setTimeout(function () {
@@ -639,12 +668,24 @@ span.errMsg {
     }, loadCount * 1000);
 
     setTimeout(() => {
+      simplifyHeader();
       removeWorktime();
       cleanWord();
       AppendMemberNumber();
       addMemberSelect();
       markAbnormalTime();
     }, (loadCount + 1) * 1000);
+  }
+
+  /**
+   * Simplify header.
+   */
+  function simplifyHeader() {
+    let spanList = document.querySelectorAll('._38MgU8RZnSct2M6Qs3ZR2i');
+    for (let i = 0; i < spanList.length; i++) {
+      const text = spanList[i].textContent;
+      spanList[i].textContent = text.replace('工时', "");
+    }
   }
 
   /**
