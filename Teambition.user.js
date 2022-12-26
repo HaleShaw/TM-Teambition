@@ -4,7 +4,7 @@
 // @description        Beautify the Teambition.
 // @description:zh-CN  美化Teambition。
 // @namespace          https://github.com/HaleShaw
-// @version            1.0.2
+// @version            1.0.3
 // @author             HaleShaw
 // @copyright          2022+, HaleShaw (https://github.com/HaleShaw)
 // @license            AGPL-3.0-or-later
@@ -568,7 +568,7 @@ span.errMsg {
    */
   function loadAll() {
     GM_addStyle(loadAllStyle);
-    let parent = $('div#teambition-web-content > div.project-app-view > div.project-app-inner > nav.project-navigation.sub-nav.sub-navigator > div.row-flex.nav-container > div.nav-footer');
+    let parent = $('nav.project-navigation.sub-nav.sub-navigator > div.row-flex.nav-container > div.nav-footer');
     if (!parent || parent.length == 0) {
       return;
     }
